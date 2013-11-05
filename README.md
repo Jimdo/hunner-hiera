@@ -8,6 +8,9 @@ This class will write out a hiera.yaml file in either /etc/puppetlabs/puppet/hie
 
 ```puppet
 class { 'hiera':
+  backends => [
+    { 'yaml' => { 'datadir' => '/etc/puppet/hieradata' } },
+  ],
   hierarchy => [
     '%{environment}/%{calling_class}',
     '%{environment}',
@@ -19,15 +22,18 @@ class { 'hiera':
 The resulting output in /etc/puppet/hiera.yaml:
 ```yaml
 ---
-backends:
+:backends:
   - yaml
-logger: console
-hierarchy:
+
+:logger: console
+
+:hierarchy:
   - "%{environment}/%{calling_class}"
   - "%{environment}"
   - common
-yaml:
-   :datadir: /etc/puppet/hieradata
+
+:yaml:
+  :datadir: /etc/puppet/hieradata
 ```
 
 ## Testing

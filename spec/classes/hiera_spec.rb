@@ -8,13 +8,6 @@ describe 'hiera' do
     let (:params) {{ }}
 
     it 'properly sets default parameters when called without parameters' do
-      should create_file('/etc/puppetlabs/puppet/hieradata').with({
-        'ensure' => 'directory',
-        'owner'  => 'pe-puppet',
-        'group'  => 'pe-puppet',
-        'mode'   => '0644',
-      })
-
       should create_file('/etc/puppetlabs/puppet/hiera.yaml').with({
         'ensure' => 'present',
       })
@@ -31,13 +24,6 @@ describe 'hiera' do
     let (:params) {{ }}
 
     it 'properly sets default parameters when called without parameters' do
-      should create_file('/etc/puppet/hieradata').with({
-        'ensure' => 'directory',
-        'owner'  => 'puppet',
-        'group'  => 'puppet',
-        'mode'   => '0644',
-      })
-
       should create_file('/etc/puppet/hiera.yaml').with({
         'ensure' => 'present',
       })
@@ -50,24 +36,24 @@ describe 'hiera' do
 
     it 'uses the yaml backend by default' do
       should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{backends:\n  - yaml\nlogger:})
+        .with_content(%r{:backends:\n  - yaml\n:logger:})
     end
 
     it 'uses an empty hierarchy by default' do
       should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{hierarchy:\n\nyaml:})
+        .with_content(%r{:hierarchy:\n\n:yaml:})
     end
   end
 
   context 'with custom backend configuration' do
     let (:facts) {{ :puppetversion => '2.7.23' }}
     let (:params) {{
-      :backends => [ 'foo', 'bar' ],
+      :backends => [ {'foo' => { 'bar' => 'baz' }} ],
     }}
 
     it 'properly configures the given backends' do
       should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{backends:\n  - foo\n  - bar\nlogger:})
+        .with_content(%r{:foo:\n  :bar: baz\n})
     end
   end
 
@@ -79,36 +65,7 @@ describe 'hiera' do
 
     it 'properly configures the given backends' do
       should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{hierarchy:\n  - bla\n  - sausage\nyaml:})
+        .with_content(%r{:hierarchy:\n  - bla\n  - sausage\n:yaml:})
     end
   end
-
-  context 'with extra config beeing a string' do
-    let (:facts) {{ :puppetversion => '2.7.23' }}
-    let (:params) {{
-      :extra_config => 'blub',
-    }}
-
-    it 'properly writes extra_config to config when string given' do
-      should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{datadir: /etc/puppet/hieradata\n})
-    end
-  end
-
-  context 'with extra config beeing a hash' do
-    let (:facts) {{ :puppetversion => '2.7.23' }}
-    let (:params) {{
-      :extra_config => {
-        'bla' => {
-          'foo' => 'foo',
-        }
-      }
-    }}
-
-    it 'properly writes extra_config to config when hash given' do
-      should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{datadir: /etc/puppet/hieradata\nbla: \n  foo: foo\n})
-    end
-  end
-
 end

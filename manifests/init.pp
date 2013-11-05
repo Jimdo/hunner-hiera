@@ -9,15 +9,12 @@
 #   Default: empty
 #
 # [*backends*]
-#   Hiera backends.
-#   Default: ['yaml']
+#   array of Hiera backends, including configuration hashes
+#   Default: [ {'yaml' > { 'datadir' => $datadir } ]
+#            ($datadir auto-set, platform-specific
 #
 # [*hiera_yaml*]
 #   Heira config file.
-#   Default: auto-set, platform specific
-#
-# [*datadir*]
-#   Directory in which hiera will start looking for databases.
 #   Default: auto-set, platform specific
 #
 # [*owner*]
@@ -27,12 +24,6 @@
 # [*group*]
 #   Group owner of the files.
 #   Default: auto-set, platform specific
-#
-# [*extra_config*]
-#   An extra configuration fragment to append to the config file.
-#   Can be plain YAML as a string, or a hash, which is transformed to YAML.
-#   Useful for configuring backend-specific parameters.
-#   Default: ''
 #
 # === Actions:
 #
@@ -47,6 +38,9 @@
 # === Sample Usage:
 #
 #   class { 'hiera':
+#     backends => [
+#       { 'yaml' => { 'datadir' => '/etc/puppet/hieradata' } },
+#     ],
 #     hierarchy => [
 #       '%{environment}',
 #       'common',
@@ -57,33 +51,29 @@
 #
 # Hunter Haugen <h.haugen@gmail.com>
 # Mike Arnold <mike@razorsedge.org>
-# Deniz Adrian <deniz@adrianer.de>
+# Robin Bowes <robin.bowes@yo61.com>
 #
 # === Copyright:
 #
 # Copyright (C) 2012 Hunter Haugen, unless otherwise noted.
 # Copyright (C) 2013 Mike Arnold, unless otherwise noted.
+# Copyright (C) 2013 Robin Bowes, unless otherwise noted.
 #
-class hiera (
-  $hierarchy     = [],
-  $backends      = $hiera::params::backends,
-  $hiera_yaml    = $hiera::params::hiera_yaml,
-  $datadir       = $hiera::params::datadir,
-  $owner         = $hiera::params::owner,
-  $group         = $hiera::params::group,
-  $extra_config  = '',
-) inherits hiera::params {
+
+class hiera(
+  $hierarchy    = $::hiera::params::hierarchy,
+  $hiera_yaml   = $::hiera::params::hiera_yaml,
+  $backends     = $::hiera::params::backends,
+  $owner        = $::hiera::params::owner,
+  $group        = $::hiera::params::group,
+) inherits ::hiera::params {
+
   File {
     owner => $owner,
     group => $group,
     mode  => '0644',
   }
-  if $datadir !~ /%\{.*\}/ {
-    file { $datadir:
-      ensure => directory,
-    }
-  }
-  # Template uses $hierarchy, $datadir, $extra_config
+  # Template uses $backends, $hierarchy
   file { $hiera_yaml:
     ensure  => present,
     content => template('hiera/hiera.yaml.erb'),
@@ -93,4 +83,5 @@ class hiera (
     ensure => symlink,
     target => $hiera_yaml,
   }
+
 }

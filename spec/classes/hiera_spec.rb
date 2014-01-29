@@ -1,11 +1,10 @@
 require 'spec_helper'
 
 describe 'hiera' do
-  let (:facts) {{ :operatingsystem => 'debian' }}
+  let(:facts) {{ :operatingsystem => 'debian' }}
 
   context 'with puppet enterprise and default parameters' do
     let (:facts) {{ :puppetversion => 'Puppet Enterprise' }}
-    let (:params) {{ }}
 
     it 'properly sets default parameters when called without parameters' do
       should create_file('/etc/puppetlabs/puppet/hiera.yaml').with({
@@ -20,8 +19,7 @@ describe 'hiera' do
   end
 
   context 'with puppet community edition and default parameters' do
-    let (:facts) {{ :puppetversion => '2.7.23' }}
-    let (:params) {{ }}
+    let(:facts) {{ :puppetversion => '2.7.23' }}
 
     it 'properly sets default parameters when called without parameters' do
       should create_file('/etc/puppet/hiera.yaml').with({
@@ -46,8 +44,8 @@ describe 'hiera' do
   end
 
   context 'with custom backend configuration' do
-    let (:facts) {{ :puppetversion => '2.7.23' }}
-    let (:params) {{
+    let(:facts) {{ :puppetversion => '2.7.23' }}
+    let(:params) {{
       :backends => [
         {'foo' => { 'bar' => 'baz' }},
         {'cat' => { 'dog' => 'doge' }},
@@ -61,8 +59,8 @@ describe 'hiera' do
   end
 
   context 'with custom hierarchy configuration' do
-    let (:facts) {{ :puppetversion => '2.7.23' }}
-    let (:params) {{
+    let(:facts) {{ :puppetversion => '2.7.23' }}
+    let(:params) {{
       :hierarchy => [ 'bla', 'sausage', 'doge' ],
     }}
 

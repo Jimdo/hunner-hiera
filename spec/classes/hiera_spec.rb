@@ -48,24 +48,27 @@ describe 'hiera' do
   context 'with custom backend configuration' do
     let (:facts) {{ :puppetversion => '2.7.23' }}
     let (:params) {{
-      :backends => [ {'foo' => { 'bar' => 'baz' }} ],
+      :backends => [
+        {'foo' => { 'bar' => 'baz' }},
+        {'cat' => { 'dog' => 'doge' }},
+      ],
     }}
 
-    it 'properly configures the given backends' do
+    it 'properly configures the given backends in the right order' do
       should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{:foo:\n  :bar: baz\n})
+        .with_content(%r{:foo:\n  :bar: baz\n:cat:\n  :dog: doge\n})
     end
   end
 
   context 'with custom hierarchy configuration' do
     let (:facts) {{ :puppetversion => '2.7.23' }}
     let (:params) {{
-      :hierarchy => [ 'bla', 'sausage' ],
+      :hierarchy => [ 'bla', 'sausage', 'doge' ],
     }}
 
-    it 'properly configures the given backends' do
+    it 'properly configures the given backends in the right order' do
       should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{:hierarchy:\n  - bla\n  - sausage\n:yaml:})
+        .with_content(%r{:hierarchy:\n  - bla\n  - sausage\n  - doge\n:yaml:})
     end
   end
 end

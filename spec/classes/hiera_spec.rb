@@ -49,12 +49,13 @@ describe 'hiera' do
       :backends => [
         {'foo' => { 'bar' => 'baz' }},
         {'cat' => { 'dog' => 'doge' }},
+        {'multi' => { 'two' => '2', 'one' => '1', 'three' => '3' }}
       ],
     }}
 
     it 'properly configures the given backends in the right order' do
       should create_file('/etc/puppet/hiera.yaml') \
-        .with_content(%r{:foo:\n  :bar: baz\n:cat:\n  :dog: doge\n})
+        .with_content(%r{:foo:\n  :bar: baz\n:cat:\n  :dog: doge\n:multi:\n  :one: 1\n  :three: 3\n  :two: 2\n})
     end
   end
 
